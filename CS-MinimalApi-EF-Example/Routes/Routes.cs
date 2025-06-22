@@ -36,7 +36,7 @@ namespace CS_MinimalApi_EF_Example.Routes
             app.MapPut("api/teachers", async (
                 [FromServices] TeachersHandler handler,
                 [FromBody] Teacher teacher) => await handler.UpdateTeacher(teacher));
-            app.MapDelete("api/teachers", async (
+            app.MapDelete("api/teachers/{id:int}", async (
                 int id, [FromServices] TeachersHandler handler) => await handler.DeleteTeacher(id));
         }
     }
