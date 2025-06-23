@@ -4,15 +4,8 @@ using Microsoft.EntityFrameworkCore;
 
 namespace CS_MinimalApi_EF_Example.Application
 {
-    public class StudentsHandler
+    public class StudentsHandler(DataContext dataContext)
     {
-        private readonly DataContext dataContext;
-
-        public StudentsHandler(DataContext dataContext)
-        {
-            this.dataContext = dataContext;
-        }
-
         public async Task<IResult> GetStudents()
         {
             List<Student> students = await dataContext.Students.ToListAsync();
@@ -25,15 +18,19 @@ namespace CS_MinimalApi_EF_Example.Application
             await dataContext.Students.AddAsync(student);
             await dataContext.SaveChangesAsync();
 
-            return Results.Ok(student);
+            return Results.Created($"api/students/{student.Id}", student);
         }
 
         public async Task<IResult> UpdateStudent(Student student)
         {
+            var exists = await dataContext.Students.AnyAsync(s => s.Id == student.Id);
+            if (!exists)
+                return Results.NotFound();
+
             dataContext.Students.Update(student);
             await dataContext.SaveChangesAsync();
 
-            return Results.Ok(student);
+            return Results.NoContent();
         }
 
         public async Task<IResult> DeleteStudent(int id)
@@ -46,7 +43,7 @@ namespace CS_MinimalApi_EF_Example.Application
             dataContext.Students.Remove(student);
             await dataContext.SaveChangesAsync();
 
-            return Results.Ok(student);
+            return Results.NoContent();
         }
     }
 }
